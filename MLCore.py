@@ -6,11 +6,17 @@ import re
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_percentage_error
 import sys
+from sklearn.model_selection import train_test_split
+from keras import backend as K
 
 # Set standard output to UTF-8
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
 
 MODEL_PATH = "saved_model/my_model.keras"
+
+
+def calculate_mape(y_true, y_pred):
+    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
 
 def load_and_preprocess_data(file_path):
@@ -39,9 +45,8 @@ def load_and_preprocess_data(file_path):
         df['duration'] = df['duration'].apply(convert_duration_to_minutes)
 
         df.dropna(subset=['date_from', 'cost', 'duration'], inplace=True)
-
+        df = pd.read_excel(file_path)
         return df
-
     except Exception as e:
         print(f"Error: {e}")
         raise
@@ -117,10 +122,9 @@ def evaluate_model(df, model):
     return y_true, y_pred
 
 
-def calculate_mape(y_true, y_pred):
-    return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
 
+y_true = [100, 200, 300, 400]
+y_pred = [110, 190, 310, 420]
+mape = calculate_mape(np.array(y_true), np.array(y_pred))
 
-y_true, y_pred = evaluate_model(df, model)
-mape = calculate_mape(y_true, y_pred)
 print(f"MAPE: {mape}")
